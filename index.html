@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work List - MSYT</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
+
+    <!-- Header Navigation: Simplified to user selector -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50 py-3">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex items-center justify-between gap-3 bg-indigo-700/60 p-2 rounded-2xl border border-indigo-500/30">
+                <!-- Clean full-width horizontal scroll member selector -->
+                <div class="flex items-center gap-2 overflow-x-auto py-1 px-1 w-full custom-scrollbar" id="memberTabs">
+                    <!-- Dynamic Member Tabs -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Member Profile & Stats -->
+        <section class="lg:col-span-1 space-y-6">
+            <!-- Active Profile Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-4">
+                        <div id="profileAvatar" class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-2xl border-2 border-indigo-200 shadow-inner">
+                            👤
+                        </div>
+                        <div>
+                            <h2 id="profileName" class="text-xl font-bold text-slate-800">Guest Mode</h2>
+                            <span id="profileRole" class="inline-block bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-medium mt-1">Select a family member above</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings Dashboard -->
+                <div id="earningsDashboard" class="hidden grid-cols-2 gap-3 mb-6">
+                    <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl">
+                        <span class="text-xs text-emerald-700 font-semibold block mb-1">Unpaid Balance</span>
+                        <span id="unpaidBalance" class="text-2xl font-black text-emerald-600">$0.00</span>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
+                        <span class="text-xs text-slate-500 font-semibold block mb-1">Total Earned</span>
+                        <span id="totalEarned" class="text-2xl font-black text-slate-700">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Adult Action Buttons (Parent/Adult Only) -->
+                <div id="payoutSection" class="hidden space-y-2">
+                    <button onclick="payoutMember()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-money-bill-transfer"></i> Record Pay Out
+                    </button>
+                    <button onclick="openManageMembersModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-200">
+                        <i class="fa-solid fa-users-gear text-indigo-600"></i> Manage Members & PINs
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Task Form (Adult Only) -->
+            <div id="addTaskContainer" class="hidden bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-square-plus text-indigo-600"></i> Post New Chore / Task
+                </h3>
+                <form id="addTaskForm" onsubmit="handleAddTask(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Task Title</label>
+                        <input type="text" id="taskTitle" placeholder="e.g., Clean the garage" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pay Amount ($)</label>
+                            <input type="number" id="taskPay" step="0.50" min="0" placeholder="5.00" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Assign To</label>
+                            <select id="taskAssignee" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <option value="anyone">Anyone (Open)</option>
+                                <!-- Dynamic member options -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Category / Tag</label>
+                        <select id="taskCategory" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="Cleaning">🧹 Cleaning</option>
+                            <option value="Yardwork">🌱 Yardwork</option>
+                            <option value="Petcare">🐶 Pet Care</option>
+                            <option value="Organizing">📦 Organizing</option>
+                            <option value="Other">✨ Other</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add to Work List
+                    </button>
+                </form>
+            </div>
+
+            <!-- Non-Adult Notice Box (Shown when Guest or Kid profile is active) -->
+            <div id="kidsNotice" class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
+                <i class="fa-solid fa-lock text-amber-500 text-2xl mb-2"></i>
+                <h4 class="font-bold text-amber-900 text-sm mb-1">Adult Controls Locked</h4>
+                <p class="text-xs text-amber-700">Only authorized adult members with a valid PIN can add or remove tasks, manage family members, or record payouts.</p>
+            </div>
+        </section>
+
+        <!-- Right Column: Chores List & Activity -->
+        <section class="lg:col-span-2 space-y-6">
+
+            <!-- Filter Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter:</span>
+                    <button onclick="setFilter('all')" id="filterAll" class="filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-600">All Tasks</button>
+                    <button onclick="setFilter('pending')" id="filterPending" class="filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">To Do</button>
+                    <button onclick="setFilter('review')" id="filterReview" class="filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-1">
+                        Awaiting Approval <span id="reviewBadge" class="hidden bg-amber-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+                    </button>
+                    <button onclick="setFilter('completed')" id="filterCompleted" class="filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">Completed</button>
+                </div>
+            </div>
+
+            <!-- Task Cards List -->
+            <div id="taskList" class="space-y-3">
+                <!-- Dynamic tasks render here -->
+            </div>
+
+            <!-- History Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Recent Payout History
+                </h3>
+                <div id="payoutHistory" class="space-y-2 text-sm text-slate-600 max-h-48 overflow-y-auto custom-scrollbar">
+                    <p class="text-xs text-slate-400 italic">No payouts recorded yet.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: PIN Verification -->
+    <div id="pinModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto text-xl font-bold">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-800">Enter PIN</h3>
+                <p id="pinPromptMember" class="text-xs text-slate-500 mt-0.5">Enter PIN (Default: 1234)</p>
+            </div>
+
+            <div class="flex justify-center gap-2 my-2">
+                <input type="password" maxlength="4" id="pinInput" readonly class="w-36 text-center text-2xl font-bold tracking-widest py-2 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none">
+            </div>
+
+            <!-- Keypad -->
+            <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
+                <button onclick="appendPin('1')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">1</button>
+                <button onclick="appendPin('2')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">2</button>
+                <button onclick="appendPin('3')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">3</button>
+                <button onclick="appendPin('4')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">4</button>
+                <button onclick="appendPin('5')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">5</button>
+                <button onclick="appendPin('6')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">6</button>
+                <button onclick="appendPin('7')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">7</button>
+                <button onclick="appendPin('8')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">8</button>
+                <button onclick="appendPin('9')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">9</button>
+                <button onclick="clearPin()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2.5 rounded-xl text-xs transition-colors">Clear</button>
+                <button onclick="appendPin('0')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">0</button>
+                <button onclick="verifyPin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <p id="pinErrorMsg" class="text-xs text-red-500 font-semibold hidden">Incorrect PIN. Try again!</p>
+
+            <div class="pt-2">
+                <button onclick="cancelPinModal()" class="text-xs text-slate-400 hover:text-slate-600 font-semibold">Cancel / Stay in Guest Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Manage Members (Adult Only) -->
+    <div id="manageMembersModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800">Family Member Admin</h3>
+                <button onclick="closeManageMembersModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Current Members List with Remove Buttons & Conditional PIN Edit -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Current Members & PINs</h4>
+                <div id="manageMemberList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                    <!-- Dynamic member management list -->
+                </div>
+            </div>
+
+            <!-- Add Member Form -->
+            <div class="border-t pt-4">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Add New Member</h4>
+                <form onsubmit="handleAddMember(event)" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="memberName" placeholder="Name" required class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <select id="memberRole" class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="Adult">Adult</option>
+                            <option value="Teen">Teen</option>
+                            <option value="Kid">Kid</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="password" id="memberPin" maxlength="4" placeholder="Set 4-Digit PIN (Default: 1234)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-xs transition-all">
+                        <i class="fa-solid fa-user-plus mr-1"></i> Add Family Member
+                    </button>
+                </form>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="button" onclick="closeManageMembersModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // Clean Default State with PINs for ALL family members
+        let state = {
+            members: [
+                { id: 'm_mom', name: 'Mom', role: 'Adult', pin: '1234', avatarBg: 'bg-purple-100 text-purple-600' },
+                { id: 'm_dad', name: 'Dad', role: 'Adult', pin: '1234', avatarBg: 'bg-indigo-100 text-indigo-600' },
+                { id: 'm_jay', name: 'Jay', role: 'Adult', pin: '1234', avatarBg: 'bg-blue-100 text-blue-600' },
+                { id: 'm_kai', name: 'Kai', role: 'Teen', pin: '1234', avatarBg: 'bg-cyan-100 text-cyan-600' },
+                { id: 'm_dallin', name: 'Dallin', role: 'Teen', pin: '1234', avatarBg: 'bg-teal-100 text-teal-600' },
+                { id: 'm_matt', name: 'Matt', role: 'Kid', pin: '1234', avatarBg: 'bg-emerald-100 text-emerald-600' }
+            ],
+            tasks: [],
+            payouts: [],
+            activeMemberId: null, // Default Guest Mode (No user selected)
+            unlockedMemberIds: [], // Session cache for unlocked accounts
+            pendingMemberId: null, // Temporary ID when PIN verification is pending
+            filter: 'all'
+        };
+
+        // Helper to check if current user is an Adult & Unlocked
+        function isCurrentMemberAdult() {
+            if (!state.activeMemberId) return false;
+            const member = getMember(state.activeMemberId);
+            return member && member.role === 'Adult' && state.unlockedMemberIds.includes(member.id);
+        }
+
+        // UI Helpers
+        function formatCurrency(amount) {
+            return '$' + Number(amount).toFixed(2);
+        }
+
+        function getMember(id) {
+            return state.members.find(m => m.id === id) || null;
+        }
+
+        // Save & Load state to LocalStorage
+        function saveData() {
+            localStorage.setItem('msyt_family_work_list_v7', JSON.stringify(state));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('msyt_family_work_list_v7');
+            if (saved) {
+                try { 
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.members) {
+                        state.members = parsed.members.filter(m => m.role !== 'Guest');
+                        state.tasks = parsed.tasks || [];
+                        state.payouts = parsed.payouts || [];
+                    }
+                } catch(e){}
+            }
+
+            // Ensure all members have a PIN assigned (default 1234)
+            state.members.forEach(m => {
+                if (!m.pin) {
+                    m.pin = '1234';
+                }
+            });
+        }
+
+        // Render Member Switcher Tabs
+        function renderMembers() {
+            const container = document.getElementById('memberTabs');
+            const selectAssignee = document.getElementById('taskAssignee');
+            
+            container.innerHTML = '';
+            selectAssignee.innerHTML = '<option value="anyone">Anyone (Open)</option>';
+
+            // Guest Mode Reset Button
+            const guestBtn = document.createElement('button');
+            const isGuestActive = state.activeMemberId === null;
+            guestBtn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                isGuestActive ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-100 hover:bg-indigo-600/50'
+            }`;
+            guestBtn.onclick = () => selectMember(null);
+            guestBtn.innerHTML = `👤 Guest View`;
+            container.appendChild(guestBtn);
+
+            state.members.forEach(m => {
+                const isActive = m.id === state.activeMemberId;
+                const isUnlocked = state.unlockedMemberIds.includes(m.id);
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                    isActive ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-100 hover:bg-indigo-600/50'
+                }`;
+                btn.onclick = () => selectMember(m.id);
+                
+                let iconTag = isUnlocked ? '🔓' : '🔒';
+
+                btn.innerHTML = `<span class="w-2 h-2 rounded-full ${isActive ? 'bg-indigo-600' : 'bg-indigo-300'}"></span>${m.name} ${iconTag}`;
+                container.appendChild(btn);
+
+                // Option for assignee dropdown (only kids/teens or anyone)
+                if (m.role !== 'Adult') {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = `${m.name} (${m.role})`;
+                    selectAssignee.appendChild(opt);
+                }
+            });
+
+            updateProfileCard();
+            toggleAdultControls();
+        }
+
+        function selectMember(id) {
+            // Lock all active sessions whenever switching members
+            state.unlockedMemberIds = [];
+
+            if (id === null) {
+                // Return to Guest View
+                state.activeMemberId = null;
+                renderMembers();
+                renderTasks();
+                renderPayouts();
+                saveData();
+                return;
+            }
+
+            const targetMember = getMember(id);
+
+            // Prompt PIN for ANY family member selected
+            if (targetMember) {
+                openPinModal(id);
+                return;
+            }
+
+            state.activeMemberId = id;
+            renderMembers();
+            renderTasks();
+            renderPayouts();
+            saveData();
+        }
+
+        // PIN Verification Handlers
+        function openPinModal(memberId) {
+            state.pendingMemberId = memberId;
+            const member = getMember(memberId);
+            document.getElementById('pinPromptMember').textContent = `Enter PIN for ${member ? member.name : ''} (Default: 1234)`;
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinErrorMsg').classList.add('hidden');
+            document.getElementById('pinModal').classList.remove('hidden');
+        }
+
+        function cancelPinModal() {
+            document.getElementById('pinModal').classList.add('hidden');
+            state.pendingMemberId = null;
+            // Revert back to Guest view
+            state.activeMemberId = null;
+            renderMembers();
+            renderTasks();
+            renderPayouts();
+        }
+
+        function appendPin(num) {
+            const input = document.getElementById('pinInput');
+            if (input.value.length < 4) {
+                input.value += num;
+            }
+            if (input.value.length === 4) {
+                verifyPin();
+            }
+        }
+
+        function clearPin() {
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinErrorMsg').classList.add('hidden');
+        }
+
+        function verifyPin() {
+            const enteredPin = document.getElementById('pinInput').value;
+            const targetMember = getMember(state.pendingMemberId);
+
+            const expectedPin = targetMember ? (targetMember.pin || '1234') : '1234';
+
+            if (enteredPin === expectedPin) {
+                state.unlockedMemberIds = [targetMember.id];
+                state.activeMemberId = targetMember.id;
+                document.getElementById('pinModal').classList.add('hidden');
+                state.pendingMemberId = null;
+                renderMembers();
+                renderTasks();
+                renderPayouts();
+                saveData();
+            } else {
+                document.getElementById('pinErrorMsg').classList.remove('hidden');
+                clearPin();
+            }
+        }
+
+        // Show/Hide Adult-Only Controls
+        function toggleAdultControls() {
+            const addTaskContainer = document.getElementById('addTaskContainer');
+            const kidsNotice = document.getElementById('kidsNotice');
+            const payoutSection = document.getElementById('payoutSection');
+            const isAdult = isCurrentMemberAdult();
+
+            if (isAdult) {
+                addTaskContainer.classList.remove('hidden');
+                payoutSection.classList.remove('hidden');
+                kidsNotice.classList.add('hidden');
+            } else {
+                addTaskContainer.classList.add('hidden');
+                payoutSection.classList.add('hidden');
+                kidsNotice.classList.remove('hidden');
+            }
+        }
+
+        function updateProfileCard() {
+            const activeMember = getMember(state.activeMemberId);
+            const earningsDashboard = document.getElementById('earningsDashboard');
+
+            if (!activeMember) {
+                // Guest Mode UI
+                document.getElementById('profileName').textContent = 'Guest Mode';
+                document.getElementById('profileRole').textContent = 'Select a family member above';
+                document.getElementById('profileAvatar').textContent = '👤';
+                earningsDashboard.classList.add('hidden');
+                earningsDashboard.classList.remove('grid');
+            } else {
+                document.getElementById('profileName').textContent = activeMember.name;
+                document.getElementById('profileRole').textContent = activeMember.role === 'Adult' ? 'Adult / Admin' : activeMember.role;
+                document.getElementById('profileAvatar').textContent = activeMember.name.charAt(0).toUpperCase();
+
+                earningsDashboard.classList.remove('hidden');
+                earningsDashboard.classList.add('grid');
+
+                // Calculate Balances
+                const earned = state.tasks
+                    .filter(t => t.status === 'completed' && t.completedBy === state.activeMemberId)
+                    .reduce((sum, t) => sum + Number(t.pay), 0);
+
+                const paid = state.payouts
+                    .filter(p => p.memberId === state.activeMemberId)
+                    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+                const unpaid = Math.max(0, earned - paid);
+
+                document.getElementById('totalEarned').textContent = formatCurrency(earned);
+                document.getElementById('unpaidBalance').textContent = formatCurrency(unpaid);
+            }
+        }
+
+        // Render Tasks List
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            const isAdult = isCurrentMemberAdult();
+            const isGuest = state.activeMemberId === null;
+
+            let filtered = state.tasks.filter(t => {
+                // If adult or guest, see all tasks. If kid/teen, see open tasks or tasks assigned/completed by them.
+                if (!isAdult && !isGuest) {
+                    const isAssigned = t.assigneeId === 'anyone' || t.assigneeId === state.activeMemberId || t.completedBy === state.activeMemberId;
+                    if (!isAssigned) return false;
+                }
+
+                // Status filter
+                if (state.filter === 'pending') return t.status === 'pending';
+                if (state.filter === 'review') return t.status === 'review';
+                if (state.filter === 'completed') return t.status === 'completed';
+                return true;
+            });
+
+            // Update Review badge
+            const reviewCount = state.tasks.filter(t => t.status === 'review').length;
+            const badge = document.getElementById('reviewBadge');
+            if (reviewCount > 0) {
+                badge.textContent = reviewCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="bg-white p-8 text-center rounded-2xl border border-slate-200/80 text-slate-400">
+                        <i class="fa-solid fa-clipboard-check text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-sm">No tasks currently posted.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(task => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4.5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:border-slate-300";
+
+                const categoryIcons = {
+                    'Cleaning': '🧹',
+                    'Yardwork': '🌱',
+                    'Petcare': '🐶',
+                    'Organizing': '📦',
+                    'Other': '✨'
+                };
+
+                let statusBadge = '';
+                let actionBtn = '';
+
+                if (task.status === 'pending') {
+                    statusBadge = `<span class="bg-blue-50 text-blue-600 text-xs px-2.5 py-1 rounded-full font-semibold">To Do</span>`;
+                    
+                    if (!isAdult && !isGuest) {
+                        actionBtn = `
+                            <button onclick="markForReview('${task.id}')" class="w-full sm:w-auto bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-check"></i> Mark Done
+                            </button>
+                        `;
+                    } else if (isAdult) {
+                        actionBtn = `<span class="text-xs text-slate-400 italic">Waiting for completion</span>`;
+                    } else {
+                        actionBtn = `<span class="text-xs text-slate-400 italic">Guest View Only</span>`;
+                    }
+                } else if (task.status === 'review') {
+                    statusBadge = `<span class="bg-amber-50 text-amber-600 text-xs px-2.5 py-1 rounded-full font-semibold">Awaiting Approval</span>`;
+                    
+                    if (isAdult) {
+                        actionBtn = `
+                            <button onclick="approveTask('${task.id}')" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-colors shadow-sm">
+                                Approve Pay
+                            </button>
+                        `;
+                    } else {
+                        actionBtn = `<span class="text-xs text-amber-600 font-medium">Pending adult approval</span>`;
+                    }
+                } else if (task.status === 'completed') {
+                    statusBadge = `<span class="bg-emerald-50 text-emerald-600 text-xs px-2.5 py-1 rounded-full font-semibold">Approved & Paid</span>`;
+                    actionBtn = `<span class="text-xs text-slate-400 font-medium flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-500"></i> Completed</span>`;
+                }
+
+                const assignedMember = getMember(task.assigneeId);
+                const deleteButton = isAdult ? `
+                    <button onclick="deleteTask('${task.id}')" class="text-slate-300 hover:text-red-500 p-2 text-xs transition-colors" title="Delete Task">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                ` : '';
+
+                card.innerHTML = `
+                    <div class="flex items-start gap-3.5">
+                        <div class="text-2xl p-2 bg-slate-50 rounded-xl border border-slate-100 flex-shrink-0">
+                            ${categoryIcons[task.category] || '📌'}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap mb-1">
+                                <h4 class="font-bold text-slate-800 text-sm sm:text-base">${task.title}</h4>
+                                ${statusBadge}
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-slate-500">
+                                <span><i class="fa-solid fa-user text-slate-400 mr-1"></i>${assignedMember ? assignedMember.name : 'Anyone'}</span>
+                                <span>•</span>
+                                <span class="font-bold text-emerald-600">${formatCurrency(task.pay)}</span>
+                                ${task.createdBy ? `<span>• Posted by ${task.createdBy}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                        ${actionBtn}
+                        ${deleteButton}
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Adult Action: Add Task
+        function handleAddTask(e) {
+            e.preventDefault();
+            if (!isCurrentMemberAdult()) {
+                alert('Only authenticated adults can add tasks!');
+                return;
+            }
+
+            const title = document.getElementById('taskTitle').value;
+            const pay = parseFloat(document.getElementById('taskPay').value) || 0;
+            const assigneeId = document.getElementById('taskAssignee').value;
+            const category = document.getElementById('taskCategory').value;
+            const currentAdult = getMember(state.activeMemberId);
+
+            const newTask = {
+                id: 't_' + Date.now(),
+                title,
+                pay,
+                category,
+                assigneeId,
+                status: 'pending',
+                createdBy: currentAdult ? currentAdult.name : 'Adult'
+            };
+
+            state.tasks.unshift(newTask);
+            saveData();
+            renderTasks();
+
+            // Reset Form
+            document.getElementById('addTaskForm').reset();
+        }
+
+        function markForReview(taskId) {
+            const task = state.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'review';
+                task.completedBy = state.activeMemberId;
+                saveData();
+                renderTasks();
+            }
+        }
+
+        function approveTask(taskId) {
+            if (!isCurrentMemberAdult()) {
+                alert('Only adults can approve pay!');
+                return;
+            }
+            const task = state.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'completed';
+                saveData();
+                renderTasks();
+                updateProfileCard();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (!isCurrentMemberAdult()) {
+                alert('Only adults can delete tasks!');
+                return;
+            }
+            state.tasks = state.tasks.filter(t => t.id !== taskId);
+            saveData();
+            renderTasks();
+            updateProfileCard();
+        }
+
+        function payoutMember() {
+            if (!isCurrentMemberAdult()) {
+                alert('Only adults can record payouts!');
+                return;
+            }
+
+            const earned = state.tasks
+                .filter(t => t.status === 'completed' && t.completedBy === state.activeMemberId)
+                .reduce((sum, t) => sum + Number(t.pay), 0);
+
+            const paid = state.payouts
+                .filter(p => p.memberId === state.activeMemberId)
+                .reduce((sum, p) => sum + Number(p.amount), 0);
+
+            const unpaid = Math.max(0, earned - paid);
+
+            if (unpaid <= 0) {
+                alert('No unpaid balance for this member!');
+                return;
+            }
+
+            const activeMember = getMember(state.activeMemberId);
+            const confirmPayout = confirm(`Record cash/transfer payout of ${formatCurrency(unpaid)} to ${activeMember ? activeMember.name : 'member'}?`);
+
+            if (confirmPayout) {
+                state.payouts.unshift({
+                    id: 'p_' + Date.now(),
+                    memberId: state.activeMemberId,
+                    amount: unpaid,
+                    date: new Date().toLocaleDateString()
+                });
+
+                saveData();
+                updateProfileCard();
+                renderPayouts();
+            }
+        }
+
+        function renderPayouts() {
+            const container = document.getElementById('payoutHistory');
+            if (!state.activeMemberId) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">Select a member profile to view payout history.</p>`;
+                return;
+            }
+
+            const memberPayouts = state.payouts.filter(p => p.memberId === state.activeMemberId);
+
+            if (memberPayouts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No payouts recorded yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = memberPayouts.map(p => `
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
+                        <span class="font-semibold text-slate-700">${formatCurrency(p.amount)} Paid</span>
+                    </div>
+                    <span class="text-xs text-slate-400">${p.date}</span>
+                </div>
+            `).join('');
+        }
+
+        // Filter Handlers
+        function setFilter(filterType) {
+            state.filter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold text-slate-600 hover:bg-slate-100';
+            });
+            const activeBtn = document.getElementById('filter' + filterType.charAt(0).toUpperCase() + filterType.slice(1));
+            if (activeBtn) {
+                activeBtn.className = 'filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-600';
+            }
+            renderTasks();
+        }
+
+        // Modal & Admin Member Management
+        function openManageMembersModal() {
+            if (!isCurrentMemberAdult()) {
+                alert('Only adults can manage members!');
+                return;
+            }
+            renderManageMemberList();
+            document.getElementById('manageMembersModal').classList.remove('hidden');
+        }
+
+        function closeManageMembersModal() {
+            document.getElementById('manageMembersModal').classList.add('hidden');
+        }
+
+        function renderManageMemberList() {
+            const container = document.getElementById('manageMemberList');
+            container.innerHTML = '';
+
+            const currentActiveAdultId = state.activeMemberId;
+
+            state.members.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/80 text-xs';
+                
+                // Adult permission rule: Adults can change THEIR OWN PIN, or ANY CHILD'S PIN (Teen/Kid).
+                // Adults CANNOT change OTHER adults' PINs.
+                let pinBadge = '';
+                const isSelf = m.id === currentActiveAdultId;
+                const isChild = m.role === 'Teen' || m.role === 'Kid';
+
+                if (isSelf || isChild) {
+                    pinBadge = `<button onclick="changeMemberPin('${m.id}')" class="text-[10px] text-indigo-600 hover:underline font-medium">PIN: **** (Change)</button>`;
+                } else if (m.role === 'Adult') {
+                    pinBadge = `<span class="text-[10px] text-slate-400 font-medium">PIN: **** (Protected)</span>`;
+                }
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-700">${m.name}</span>
+                        <span class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-semibold">${m.role}</span>
+                        ${pinBadge}
+                    </div>
+                    <button onclick="removeMember('${m.id}')" class="text-red-500 hover:text-red-700 font-bold px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                        <i class="fa-solid fa-trash-can"></i> Remove
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function changeMemberPin(id) {
+            if (!isCurrentMemberAdult()) return;
+            const targetMember = getMember(id);
+            if (!targetMember) return;
+
+            const currentActiveAdultId = state.activeMemberId;
+            const isSelf = targetMember.id === currentActiveAdultId;
+            const isChild = targetMember.role === 'Teen' || targetMember.role === 'Kid';
+
+            if (!isSelf && !isChild) {
+                alert("Adults can only change their own PIN or children's PINs!");
+                return;
+            }
+
+            const newPin = prompt(`Enter new 4-digit PIN for ${targetMember.name}:`, targetMember.pin || '1234');
+            if (newPin && newPin.length === 4 && !isNaN(newPin)) {
+                targetMember.pin = newPin;
+                saveData();
+                renderManageMemberList();
+                alert(`PIN updated for ${targetMember.name}!`);
+            } else if (newPin !== null) {
+                alert('Invalid PIN! Please enter a 4-digit number.');
+            }
+        }
+
+        function removeMember(id) {
+            if (!isCurrentMemberAdult()) return;
+            const member = getMember(id);
+            if (!member) return;
+            if (confirm(`Are you sure you want to remove ${member.name}?`)) {
+                state.members = state.members.filter(m => m.id !== id);
+                if (state.activeMemberId === id) {
+                    state.activeMemberId = null; // Revert to guest
+                }
+                saveData();
+                renderMembers();
+                renderManageMemberList();
+                renderTasks();
+            }
+        }
+
+        function handleAddMember(e) {
+            e.preventDefault();
+            if (!isCurrentMemberAdult()) return;
+
+            const name = document.getElementById('memberName').value;
+            const role = document.getElementById('memberRole').value;
+            const pin = document.getElementById('memberPin').value || '1234';
+
+            const newMember = {
+                id: 'm_' + Date.now(),
+                name,
+                role,
+                pin
+            };
+
+            state.members.push(newMember);
+            saveData();
+            renderMembers();
+            renderManageMemberList();
+            renderTasks();
+
+            document.getElementById('memberName').value = '';
+            document.getElementById('memberPin').value = '';
+        }
+
+        // Init App
+        window.onload = function() {
+            loadData();
+            renderMembers();
+            renderTasks();
+            renderPayouts();
+        };
+    </script>
+</body>
+</html>
