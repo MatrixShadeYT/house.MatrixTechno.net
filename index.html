@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work List - MSYT</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .custom-scrollbar::-webkit-scrollbar {
@@ -28,24 +26,18 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
-    <!-- Header Navigation: Simplified user selector -->
     <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50 py-3">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex items-center justify-between gap-3 bg-indigo-700/60 p-2 rounded-2xl border border-indigo-500/30">
-                <!-- Clean full-width horizontal scroll member selector -->
                 <div class="flex items-center gap-2 overflow-x-auto py-1 px-1 w-full custom-scrollbar" id="memberTabs">
-                    <!-- Dynamic Member Tabs -->
-                </div>
+                    </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
     <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Left Column: Member Profile & Stats -->
         <section class="lg:col-span-1 space-y-6">
-            <!-- Active Profile Card -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-4">
@@ -59,30 +51,30 @@
                     </div>
                 </div>
 
-                <!-- Earnings Dashboard -->
                 <div id="earningsDashboard" class="hidden grid-cols-2 gap-3 mb-6">
                     <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl">
-                        <span class="text-xs text-emerald-700 font-semibold block mb-1">Unpaid Balance</span>
+                        <span id="balanceLabel" class="text-xs text-emerald-700 font-semibold block mb-1">Unpaid Balance</span>
                         <span id="unpaidBalance" class="text-2xl font-black text-emerald-600">$0.00</span>
                     </div>
                     <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
-                        <span class="text-xs text-slate-500 font-semibold block mb-1">Total Earned</span>
+                        <span id="earnedLabel" class="text-xs text-slate-500 font-semibold block mb-1">Total Earned</span>
                         <span id="totalEarned" class="text-2xl font-black text-slate-700">$0.00</span>
                     </div>
                 </div>
 
-                <!-- Adult Action Buttons (Parent/Adult Only) -->
                 <div id="payoutSection" class="hidden space-y-2">
-                    <button onclick="window.payoutMember()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm">
+                    <button onclick="window.openPayoutModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-money-bill-transfer"></i> Record Pay Out
                     </button>
                     <button onclick="window.openManageMembersModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-200">
                         <i class="fa-solid fa-users-gear text-indigo-600"></i> Manage Members & PINs
                     </button>
+                    <button onclick="window.openManageCategoriesModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-200">
+                        <i class="fa-solid fa-tags text-indigo-600"></i> Manage Categories
+                    </button>
                 </div>
             </div>
 
-            <!-- Add Task Form (Adult Only) -->
             <div id="addTaskContainer" class="hidden bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-square-plus text-indigo-600"></i> Post New Chore / Task
@@ -93,29 +85,48 @@
                         <input type="text" id="taskTitle" placeholder="e.g., Clean the garage" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pay Amount ($)</label>
-                            <input type="number" id="taskPay" step="0.50" min="0" placeholder="5.00" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pay Type</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center justify-center gap-2 p-2 rounded-lg border border-slate-200 text-xs font-medium cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 has-[:checked]:text-indigo-700">
+                                <input type="radio" name="payType" value="fixed" checked onchange="window.togglePayFields()" class="text-indigo-600 focus:ring-indigo-500">
+                                <span>Fixed Amount</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-2 rounded-lg border border-slate-200 text-xs font-medium cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 has-[:checked]:text-indigo-700">
+                                <input type="radio" name="payType" value="hourly" onchange="window.togglePayFields()" class="text-indigo-600 focus:ring-indigo-500">
+                                <span>Hourly Rate</span>
+                            </label>
                         </div>
+                    </div>
+
+                    <div id="fixedPayFields">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pay Amount ($)</label>
+                        <input type="number" id="taskPayFixed" step="0.50" min="0" placeholder="5.00" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div id="hourlyPayFields" class="hidden grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Rate ($/hr)</label>
+                            <input type="number" id="taskHourlyRate" step="0.50" min="0" placeholder="10.00" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Hours</label>
+                            <input type="number" id="taskHours" step="0.5" min="0.5" placeholder="1.5" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Assign To</label>
                             <select id="taskAssignee" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                                 <option value="anyone">Anyone (Open)</option>
-                                <!-- Dynamic member options -->
                             </select>
                         </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Category / Tag</label>
-                        <select id="taskCategory" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <option value="Cleaning">🧹 Cleaning</option>
-                            <option value="Yardwork">🌱 Yardwork</option>
-                            <option value="Petcare">🐶 Pet Care</option>
-                            <option value="Organizing">📦 Organizing</option>
-                            <option value="Other">✨ Other</option>
-                        </select>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+                            <select id="taskCategory" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                </select>
+                        </div>
                     </div>
 
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
@@ -124,7 +135,6 @@
                 </form>
             </div>
 
-            <!-- Non-Adult Notice Box -->
             <div id="kidsNotice" class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
                 <i class="fa-solid fa-lock text-amber-500 text-2xl mb-2"></i>
                 <h4 class="font-bold text-amber-900 text-sm mb-1">Adult Controls Locked</h4>
@@ -132,12 +142,10 @@
             </div>
         </section>
 
-        <!-- Right Column: Chores List & Activity -->
         <section class="lg:col-span-2 space-y-6">
 
-            <!-- Filter Bar -->
             <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap" id="filterBar">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter:</span>
                     <button onclick="window.setFilter('all')" id="filterAll" class="filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-600">All Tasks</button>
                     <button onclick="window.setFilter('pending')" id="filterPending" class="filter-btn text-xs px-3 py-1.5 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">To Do</button>
@@ -148,12 +156,9 @@
                 </div>
             </div>
 
-            <!-- Task Cards List -->
             <div id="taskList" class="space-y-3">
-                <!-- Dynamic tasks render here -->
-            </div>
+                </div>
 
-            <!-- History Section -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Recent Payout History
@@ -166,7 +171,63 @@
 
     </main>
 
-    <!-- Modal: PIN Verification -->
+    <div id="payoutModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Record Pay Out
+                </h3>
+                <button onclick="window.closePayoutModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div id="noOwedNotice" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 rounded-xl text-center font-medium">
+                No family members currently have an unpaid balance!
+            </div>
+
+            <form id="payoutForm" onsubmit="window.handleRecordPayout(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Select Family Member (Owed Only)</label>
+                    <select id="payoutMemberSelect" onchange="window.updatePayoutModalBalance()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
+                        </select>
+                </div>
+
+                <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-xs text-emerald-700 font-semibold">Current Owed Amount:</span>
+                    <span id="payoutModalUnpaid" class="text-lg font-bold text-emerald-600">$0.00</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Payout Amount ($)</label>
+                    <input type="number" id="payoutAmountInput" step="0.50" min="0.01" placeholder="0.00" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-check"></i> Record Pay Out
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="markDoneModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-slate-800">Complete Task For Member</h3>
+                <button onclick="window.closeMarkDoneModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="window.handleAdultCompleteTask(event)" class="space-y-3">
+                <input type="hidden" id="adultMarkTaskId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Who completed this task?</label>
+                    <select id="adultMarkMemberSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" required>
+                        </select>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition-colors">
+                    Mark Completed & Approve Pay
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div id="pinModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4">
             <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto text-xl font-bold">
@@ -174,14 +235,13 @@
             </div>
             <div>
                 <h3 class="text-lg font-bold text-slate-800">Enter PIN</h3>
-                <p id="pinPromptMember" class="text-xs text-slate-500 mt-0.5">Enter PIN (Default: 1234)</p>
+                <p id="pinPromptMember" class="text-xs text-slate-500 mt-0.5">Enter PIN</p>
             </div>
 
             <div class="flex justify-center gap-2 my-2">
                 <input type="password" maxlength="4" id="pinInput" readonly class="w-36 text-center text-2xl font-bold tracking-widest py-2 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none">
             </div>
 
-            <!-- Keypad -->
             <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
                 <button onclick="window.appendPin('1')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">1</button>
                 <button onclick="window.appendPin('2')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-base transition-colors">2</button>
@@ -205,7 +265,6 @@
         </div>
     </div>
 
-    <!-- Modal: Manage Members (Adult Only) -->
     <div id="manageMembersModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5">
             <div class="flex justify-between items-center border-b pb-3">
@@ -213,15 +272,12 @@
                 <button onclick="window.closeManageMembersModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- Current Members List -->
             <div>
                 <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Current Members & PINs</h4>
                 <div id="manageMemberList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
-                    <!-- Dynamic member management list -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Add Member Form -->
             <div class="border-t pt-4">
                 <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Add New Member</h4>
                 <form onsubmit="window.handleAddMember(event)" class="space-y-3">
@@ -234,7 +290,7 @@
                         </select>
                     </div>
                     <div>
-                        <input type="password" id="memberPin" maxlength="4" placeholder="Set 4-Digit PIN (Default: 1234)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="password" id="memberPin" maxlength="4" placeholder="Set 4-Digit PIN" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-xs transition-all">
                         <i class="fa-solid fa-user-plus mr-1"></i> Add Family Member
@@ -248,7 +304,38 @@
         </div>
     </div>
 
-    <!-- Firebase Storage Implementation -->
+    <div id="manageCategoriesModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800">Manage Custom Categories</h3>
+                <button onclick="window.closeManageCategoriesModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Existing Categories</h4>
+                <div id="manageCategoryList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                    </div>
+            </div>
+
+            <div class="border-t pt-4">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Add Custom Category</h4>
+                <form onsubmit="window.handleAddCategory(event)" class="space-y-3">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" id="categoryIcon" placeholder="Icon (e.g. 🚗)" required class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-center">
+                        <input type="text" id="categoryName" placeholder="Category Name" required class="col-span-2 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-xs transition-all">
+                        <i class="fa-solid fa-plus mr-1"></i> Add Category
+                    </button>
+                </form>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="button" onclick="window.closeManageCategoriesModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg">Done</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -270,25 +357,26 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Firestore Paths (Rule 1)
+        // Firestore Paths
         const membersRef = collection(db, 'artifacts', appId, 'public', 'data', 'members');
         const tasksRef = collection(db, 'artifacts', appId, 'public', 'data', 'tasks');
         const payoutsRef = collection(db, 'artifacts', appId, 'public', 'data', 'payouts');
+        const categoriesRef = collection(db, 'artifacts', appId, 'public', 'data', 'categories');
 
         // Application State
         let state = {
             members: [],
             tasks: [],
             payouts: [],
-            activeMemberId: null, // Default Guest Mode
-            unlockedMemberIds: [], // Active session unlocked accounts
+            categories: [],
+            activeMemberId: null,
+            unlockedMemberIds: [],
             pendingMemberId: null,
             filter: 'all'
         };
 
         let currentUser = null;
 
-        // Exponential backoff authentication strategy
         const initAuth = async () => {
             let retries = 0;
             const maxRetries = 5;
@@ -314,17 +402,6 @@
             }
         };
 
-        // Standard Default Members Seed
-        const defaultMembers = [
-            { id: 'm_mom', name: 'Mom', role: 'Adult', pin: '1234', avatarBg: 'bg-purple-100 text-purple-600' },
-            { id: 'm_dad', name: 'Dad', role: 'Adult', pin: '1234', avatarBg: 'bg-indigo-100 text-indigo-600' },
-            { id: 'm_jay', name: 'Jay', role: 'Adult', pin: '1234', avatarBg: 'bg-blue-100 text-blue-600' },
-            { id: 'm_kai', name: 'Kai', role: 'Teen', pin: '1234', avatarBg: 'bg-cyan-100 text-cyan-600' },
-            { id: 'm_dallin', name: 'Dallin', role: 'Teen', pin: '1234', avatarBg: 'bg-teal-100 text-teal-600' },
-            { id: 'm_matt', name: 'Matt', role: 'Kid', pin: '1234', avatarBg: 'bg-emerald-100 text-emerald-600' }
-        ];
-
-        // Set up Real-time Listeners after Auth
         const setupFirestoreListeners = () => {
             if (!currentUser) return;
 
@@ -334,17 +411,19 @@
                 snapshot.forEach(docSnap => {
                     membersData.push({ id: docSnap.id, ...docSnap.data() });
                 });
+                state.members = membersData;
+                renderMembers();
+            });
 
-                if (membersData.length === 0) {
-                    // Seed initial members if database is fresh
-                    defaultMembers.forEach(m => {
-                        setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', m.id), m);
-                    });
-                } else {
-                    state.members = membersData;
-                    renderMembers();
-                }
-            }, (err) => console.error("Members error:", err));
+            // Categories Listener
+            onSnapshot(categoriesRef, (snapshot) => {
+                const categoryData = [];
+                snapshot.forEach(docSnap => {
+                    categoryData.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                state.categories = categoryData;
+                renderCategoriesDropdown();
+            });
 
             // Tasks Listener
             onSnapshot(tasksRef, (snapshot) => {
@@ -355,7 +434,7 @@
                 state.tasks = tasksData;
                 renderTasks();
                 updateProfileCard();
-            }, (err) => console.error("Tasks error:", err));
+            });
 
             // Payouts Listener
             onSnapshot(payoutsRef, (snapshot) => {
@@ -366,10 +445,9 @@
                 state.payouts = payoutsData;
                 renderPayouts();
                 updateProfileCard();
-            }, (err) => console.error("Payouts error:", err));
+            });
         };
 
-        // Listen for Auth State
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             if (user) {
@@ -379,7 +457,6 @@
 
         initAuth();
 
-        // Helpers
         function isCurrentMemberAdult() {
             if (!state.activeMemberId) return false;
             const member = getMember(state.activeMemberId);
@@ -394,7 +471,42 @@
             return state.members.find(m => m.id === id) || null;
         }
 
-        // Render Navigation
+        function calculateUnpaidBalance(memberId) {
+            const earned = state.tasks
+                .filter(t => t.status === 'completed' && t.completedBy === memberId)
+                .reduce((sum, t) => sum + Number(t.pay), 0);
+
+            const paid = state.payouts
+                .filter(p => p.memberId === memberId)
+                .reduce((sum, p) => sum + Number(p.amount), 0);
+
+            return Math.max(0, earned - paid);
+        }
+
+        function calculateTotalFamilyOwed() {
+            return state.members
+                .filter(m => m.role !== 'Adult')
+                .reduce((total, m) => total + calculateUnpaidBalance(m.id), 0);
+        }
+
+        function renderCategoriesDropdown() {
+            const select = document.getElementById('taskCategory');
+            if (!select) return;
+            select.innerHTML = '';
+
+            if (state.categories.length === 0) {
+                select.innerHTML = '<option value="General">📌 General</option>';
+                return;
+            }
+
+            state.categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = `${cat.icon || '📌'} ${cat.name}`;
+                select.appendChild(opt);
+            });
+        }
+
         function renderMembers() {
             const container = document.getElementById('memberTabs');
             const selectAssignee = document.getElementById('taskAssignee');
@@ -403,7 +515,6 @@
             container.innerHTML = '';
             selectAssignee.innerHTML = '<option value="anyone">Anyone (Open)</option>';
 
-            // Guest Button
             const guestBtn = document.createElement('button');
             const isGuestActive = state.activeMemberId === null;
             guestBtn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
@@ -456,11 +567,10 @@
             }
         };
 
-        // PIN Verification
         function openPinModal(memberId) {
             state.pendingMemberId = memberId;
             const member = getMember(memberId);
-            document.getElementById('pinPromptMember').textContent = `Enter PIN for ${member ? member.name : ''} (Default: 1234)`;
+            document.getElementById('pinPromptMember').textContent = `Enter PIN for ${member ? member.name : ''}`;
             document.getElementById('pinInput').value = '';
             document.getElementById('pinErrorMsg').classList.add('hidden');
             document.getElementById('pinModal').classList.remove('hidden');
@@ -509,6 +619,20 @@
             }
         };
 
+        window.togglePayFields = function() {
+            const payType = document.querySelector('input[name="payType"]:checked').value;
+            const fixedContainer = document.getElementById('fixedPayFields');
+            const hourlyContainer = document.getElementById('hourlyPayFields');
+
+            if (payType === 'fixed') {
+                fixedContainer.classList.remove('hidden');
+                hourlyContainer.classList.add('hidden');
+            } else {
+                fixedContainer.classList.add('hidden');
+                hourlyContainer.classList.remove('hidden');
+            }
+        };
+
         function toggleAdultControls() {
             const addTaskContainer = document.getElementById('addTaskContainer');
             const kidsNotice = document.getElementById('kidsNotice');
@@ -544,22 +668,29 @@
                 earningsDashboard.classList.remove('hidden');
                 earningsDashboard.classList.add('grid');
 
-                const earned = state.tasks
-                    .filter(t => t.status === 'completed' && t.completedBy === state.activeMemberId)
-                    .reduce((sum, t) => sum + Number(t.pay), 0);
+                if (activeMember.role === 'Adult') {
+                    // Adult view: shows total money owed to kids
+                    document.getElementById('balanceLabel').textContent = 'Total Family Owed';
+                    document.getElementById('unpaidBalance').textContent = formatCurrency(calculateTotalFamilyOwed());
+                    document.getElementById('earnedLabel').textContent = 'Role';
+                    document.getElementById('totalEarned').textContent = 'Admin';
+                } else {
+                    // Kid/Teen view: shows personal earnings
+                    document.getElementById('balanceLabel').textContent = 'Unpaid Balance';
+                    document.getElementById('earnedLabel').textContent = 'Total Earned';
 
-                const paid = state.payouts
-                    .filter(p => p.memberId === state.activeMemberId)
-                    .reduce((sum, p) => sum + Number(p.amount), 0);
+                    const earned = state.tasks
+                        .filter(t => t.status === 'completed' && t.completedBy === state.activeMemberId)
+                        .reduce((sum, t) => sum + Number(t.pay), 0);
 
-                const unpaid = Math.max(0, earned - paid);
+                    const unpaid = calculateUnpaidBalance(state.activeMemberId);
 
-                document.getElementById('totalEarned').textContent = formatCurrency(earned);
-                document.getElementById('unpaidBalance').textContent = formatCurrency(unpaid);
+                    document.getElementById('totalEarned').textContent = formatCurrency(earned);
+                    document.getElementById('unpaidBalance').textContent = formatCurrency(unpaid);
+                }
             }
         }
 
-        // Render Tasks
         function renderTasks() {
             const list = document.getElementById('taskList');
             if (!list) return;
@@ -603,13 +734,8 @@
                 const card = document.createElement('div');
                 card.className = "bg-white p-4.5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:border-slate-300";
 
-                const categoryIcons = {
-                    'Cleaning': '🧹',
-                    'Yardwork': '🌱',
-                    'Petcare': '🐶',
-                    'Organizing': '📦',
-                    'Other': '✨'
-                };
+                const categoryObj = state.categories.find(c => c.name === task.category);
+                const categoryIcon = categoryObj ? categoryObj.icon : '📌';
 
                 let statusBadge = '';
                 let actionBtn = '';
@@ -624,7 +750,11 @@
                             </button>
                         `;
                     } else if (isAdult) {
-                        actionBtn = `<span class="text-xs text-slate-400 italic">Waiting for completion</span>`;
+                        actionBtn = `
+                            <button onclick="window.openMarkDoneModal('${task.id}')" class="w-full sm:w-auto bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-user-check"></i> Mark Done For Member
+                            </button>
+                        `;
                     } else {
                         actionBtn = `<span class="text-xs text-slate-400 italic">Guest View Only</span>`;
                     }
@@ -642,7 +772,9 @@
                     }
                 } else if (task.status === 'completed') {
                     statusBadge = `<span class="bg-emerald-50 text-emerald-600 text-xs px-2.5 py-1 rounded-full font-semibold">Approved & Paid</span>`;
-                    actionBtn = `<span class="text-xs text-slate-400 font-medium flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-500"></i> Completed</span>`;
+                    
+                    const completedUser = getMember(task.completedBy);
+                    actionBtn = `<span class="text-xs text-slate-400 font-medium flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-500"></i> Done by ${completedUser ? completedUser.name : 'Member'}</span>`;
                 }
 
                 const assignedMember = getMember(task.assigneeId);
@@ -652,20 +784,25 @@
                     </button>
                 ` : '';
 
+                let payDetail = formatCurrency(task.pay);
+                if (task.payType === 'hourly') {
+                    payDetail = `${formatCurrency(task.pay)} (${formatCurrency(task.hourlyRate)}/hr × ${task.hours}hrs)`;
+                }
+
                 card.innerHTML = `
                     <div class="flex items-start gap-3.5">
                         <div class="text-2xl p-2 bg-slate-50 rounded-xl border border-slate-100 flex-shrink-0">
-                            ${categoryIcons[task.category] || '📌'}
+                            ${categoryIcon}
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap mb-1">
                                 <h4 class="font-bold text-slate-800 text-sm sm:text-base">${task.title}</h4>
                                 ${statusBadge}
                             </div>
-                            <div class="flex items-center gap-3 text-xs text-slate-500">
+                            <div class="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
                                 <span><i class="fa-solid fa-user text-slate-400 mr-1"></i>${assignedMember ? assignedMember.name : 'Anyone'}</span>
                                 <span>•</span>
-                                <span class="font-bold text-emerald-600">${formatCurrency(task.pay)}</span>
+                                <span class="font-bold text-emerald-600">${payDetail}</span>
                                 ${task.createdBy ? `<span>• Posted by ${task.createdBy}</span>` : ''}
                             </div>
                         </div>
@@ -679,22 +816,36 @@
             });
         }
 
-        // Add Task in Firestore
         window.handleAddTask = async function(e) {
             e.preventDefault();
             if (!isCurrentMemberAdult() || !currentUser) return;
 
             const title = document.getElementById('taskTitle').value;
-            const pay = parseFloat(document.getElementById('taskPay').value) || 0;
+            const payType = document.querySelector('input[name="payType"]:checked').value;
             const assigneeId = document.getElementById('taskAssignee').value;
             const category = document.getElementById('taskCategory').value;
             const currentAdult = getMember(state.activeMemberId);
+
+            let calculatedPay = 0;
+            let hourlyRate = 0;
+            let hours = 0;
+
+            if (payType === 'fixed') {
+                calculatedPay = parseFloat(document.getElementById('taskPayFixed').value) || 0;
+            } else {
+                hourlyRate = parseFloat(document.getElementById('taskHourlyRate').value) || 0;
+                hours = parseFloat(document.getElementById('taskHours').value) || 0;
+                calculatedPay = hourlyRate * hours;
+            }
 
             const taskId = 't_' + Date.now();
             const newTask = {
                 id: taskId,
                 title,
-                pay,
+                payType,
+                pay: calculatedPay,
+                hourlyRate,
+                hours,
                 category,
                 assigneeId,
                 status: 'pending',
@@ -703,12 +854,53 @@
 
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tasks', taskId), newTask);
             document.getElementById('addTaskForm').reset();
+            window.togglePayFields();
         };
 
         window.markForReview = async function(taskId) {
             if (!currentUser) return;
             const taskDoc = doc(db, 'artifacts', appId, 'public', 'data', 'tasks', taskId);
             await setDoc(taskDoc, { status: 'review', completedBy: state.activeMemberId }, { merge: true });
+        };
+
+        window.openMarkDoneModal = function(taskId) {
+            if (!isCurrentMemberAdult()) return;
+
+            document.getElementById('adultMarkTaskId').value = taskId;
+            const select = document.getElementById('adultMarkMemberSelect');
+            select.innerHTML = '';
+
+            const kids = state.members.filter(m => m.role !== 'Adult');
+            if (kids.length === 0) {
+                alert("Please add non-adult family members first!");
+                return;
+            }
+
+            kids.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = `${m.name} (${m.role})`;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('markDoneModal').classList.remove('hidden');
+        };
+
+        window.closeMarkDoneModal = function() {
+            document.getElementById('markDoneModal').classList.add('hidden');
+        };
+
+        window.handleAdultCompleteTask = async function(e) {
+            e.preventDefault();
+            if (!isCurrentMemberAdult() || !currentUser) return;
+
+            const taskId = document.getElementById('adultMarkTaskId').value;
+            const completedBy = document.getElementById('adultMarkMemberSelect').value;
+
+            const taskDoc = doc(db, 'artifacts', appId, 'public', 'data', 'tasks', taskId);
+            await setDoc(taskDoc, { status: 'completed', completedBy }, { merge: true });
+
+            window.closeMarkDoneModal();
         };
 
         window.approveTask = async function(taskId) {
@@ -722,34 +914,79 @@
             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tasks', taskId));
         };
 
-        window.payoutMember = async function() {
+        // Payout Modal Logic - Only shows members who are OWED money
+        window.openPayoutModal = function() {
+            if (!isCurrentMemberAdult()) return;
+
+            const select = document.getElementById('payoutMemberSelect');
+            const form = document.getElementById('payoutForm');
+            const notice = document.getElementById('noOwedNotice');
+            if (!select) return;
+
+            select.innerHTML = '';
+
+            const membersOwed = state.members.filter(m => calculateUnpaidBalance(m.id) > 0);
+
+            if (membersOwed.length === 0) {
+                form.classList.add('hidden');
+                notice.classList.remove('hidden');
+            } else {
+                form.classList.remove('hidden');
+                notice.classList.add('hidden');
+
+                membersOwed.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = `${m.name} (${formatCurrency(calculateUnpaidBalance(m.id))} owed)`;
+                    select.appendChild(opt);
+                });
+
+                window.updatePayoutModalBalance();
+            }
+
+            document.getElementById('payoutModal').classList.remove('hidden');
+        };
+
+        window.closePayoutModal = function() {
+            document.getElementById('payoutModal').classList.add('hidden');
+        };
+
+        window.updatePayoutModalBalance = function() {
+            const select = document.getElementById('payoutMemberSelect');
+            if (!select.value) return;
+
+            const selectedMemberId = select.value;
+            const unpaid = calculateUnpaidBalance(selectedMemberId);
+
+            document.getElementById('payoutModalUnpaid').textContent = formatCurrency(unpaid);
+            document.getElementById('payoutAmountInput').value = unpaid > 0 ? unpaid.toFixed(2) : '0.00';
+        };
+
+        window.handleRecordPayout = async function(e) {
+            e.preventDefault();
             if (!isCurrentMemberAdult() || !currentUser) return;
 
-            const earned = state.tasks
-                .filter(t => t.status === 'completed' && t.completedBy === state.activeMemberId)
-                .reduce((sum, t) => sum + Number(t.pay), 0);
+            const select = document.getElementById('payoutMemberSelect');
+            const targetMemberId = select.value;
+            const amount = parseFloat(document.getElementById('payoutAmountInput').value) || 0;
 
-            const paid = state.payouts
-                .filter(p => p.memberId === state.activeMemberId)
-                .reduce((sum, p) => sum + Number(p.amount), 0);
-
-            const unpaid = Math.max(0, earned - paid);
-
-            if (unpaid <= 0) {
-                alert('No unpaid balance for this member!');
+            if (amount <= 0) {
+                alert('Please enter a valid payout amount greater than zero.');
                 return;
             }
 
-            const activeMember = getMember(state.activeMemberId);
-            if (confirm(`Record cash/transfer payout of ${formatCurrency(unpaid)} to ${activeMember ? activeMember.name : 'member'}?`)) {
-                const payoutId = 'p_' + Date.now();
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'payouts', payoutId), {
-                    id: payoutId,
-                    memberId: state.activeMemberId,
-                    amount: unpaid,
-                    date: new Date().toLocaleDateString()
-                });
-            }
+            const targetMember = getMember(targetMemberId);
+            const payoutId = 'p_' + Date.now();
+
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'payouts', payoutId), {
+                id: payoutId,
+                memberId: targetMemberId,
+                amount: amount,
+                date: new Date().toLocaleDateString()
+            });
+
+            window.closePayoutModal();
+            alert(`Recorded payout of ${formatCurrency(amount)} to ${targetMember ? targetMember.name : 'member'}!`);
         };
 
         function renderPayouts() {
@@ -761,22 +998,33 @@
                 return;
             }
 
-            const memberPayouts = state.payouts.filter(p => p.memberId === state.activeMemberId);
+            const activeMember = getMember(state.activeMemberId);
+            let memberPayouts = [];
+
+            if (activeMember && activeMember.role === 'Adult') {
+                memberPayouts = state.payouts;
+            } else {
+                memberPayouts = state.payouts.filter(p => p.memberId === state.activeMemberId);
+            }
 
             if (memberPayouts.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400 italic">No payouts recorded yet.</p>`;
                 return;
             }
 
-            container.innerHTML = memberPayouts.map(p => `
-                <div class="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
-                        <span class="font-semibold text-slate-700">${formatCurrency(p.amount)} Paid</span>
+            container.innerHTML = memberPayouts.map(p => {
+                const recipient = getMember(p.memberId);
+                return `
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
+                            <span class="font-semibold text-slate-700">${formatCurrency(p.amount)} Paid</span>
+                            <span class="text-xs text-slate-400">→ ${recipient ? recipient.name : 'Member'}</span>
+                        </div>
+                        <span class="text-xs text-slate-400">${p.date}</span>
                     </div>
-                    <span class="text-xs text-slate-400">${p.date}</span>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         window.setFilter = function(filterType) {
@@ -842,14 +1090,6 @@
             const targetMember = getMember(id);
             if (!targetMember) return;
 
-            const isSelf = targetMember.id === state.activeMemberId;
-            const isChild = targetMember.role === 'Teen' || targetMember.role === 'Kid';
-
-            if (!isSelf && !isChild) {
-                alert("Adults can only change their own PIN or children's PINs!");
-                return;
-            }
-
             const newPin = prompt(`Enter new 4-digit PIN for ${targetMember.name}:`, targetMember.pin || '1234');
             if (newPin && newPin.length === 4 && !isNaN(newPin)) {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id), { pin: newPin }, { merge: true });
@@ -882,17 +1122,71 @@
             const pin = document.getElementById('memberPin').value || '1234';
 
             const newMemberId = 'm_' + Date.now();
-            const newMember = {
-                id: newMemberId,
-                name,
-                role,
-                pin
-            };
+            const newMember = { id: newMemberId, name, role, pin };
 
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', newMemberId), newMember);
 
             document.getElementById('memberName').value = '';
             document.getElementById('memberPin').value = '';
+        };
+
+        // Manage Categories Modal
+        window.openManageCategoriesModal = function() {
+            if (!isCurrentMemberAdult()) return;
+            renderManageCategoryList();
+            document.getElementById('manageCategoriesModal').classList.remove('hidden');
+        };
+
+        window.closeManageCategoriesModal = function() {
+            document.getElementById('manageCategoriesModal').classList.add('hidden');
+        };
+
+        function renderManageCategoryList() {
+            const container = document.getElementById('manageCategoryList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.categories.forEach(cat => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/80 text-xs';
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">${cat.icon || '📌'}</span>
+                        <span class="font-bold text-slate-700">${cat.name}</span>
+                    </div>
+                    <button onclick="window.removeCategory('${cat.id}')" class="text-red-500 hover:text-red-700 font-bold px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                        <i class="fa-solid fa-trash-can"></i> Remove
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.handleAddCategory = async function(e) {
+            e.preventDefault();
+            if (!isCurrentMemberAdult() || !currentUser) return;
+
+            const icon = document.getElementById('categoryIcon').value || '📌';
+            const name = document.getElementById('categoryName').value;
+
+            const newCatId = 'c_' + Date.now();
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'categories', newCatId), {
+                id: newCatId,
+                name,
+                icon
+            });
+
+            document.getElementById('categoryIcon').value = '';
+            document.getElementById('categoryName').value = '';
+            renderManageCategoryList();
+        };
+
+        window.removeCategory = async function(catId) {
+            if (!isCurrentMemberAdult() || !currentUser) return;
+            if (confirm('Delete this category?')) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'categories', catId));
+                renderManageCategoryList();
+            }
         };
     </script>
 </body>
